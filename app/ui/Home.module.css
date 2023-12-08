@@ -1,0 +1,8 @@
+
+  .forma {
+    height: 0px;
+    width: 0px;
+    border-bottom: 30px solid red;
+    border-left: 10px solid blue;
+    border-right: 10px solid violet;
+  }

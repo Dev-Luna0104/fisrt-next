@@ -1,0 +1,332 @@
+para crias o app
+    - npx create-next-app =========================================================================
+
+    Se você olhar dentro da /app/uipasta, verá um arquivo chamado global.css. 
+    Você pode usar esse arquivo para adicionar regras CSS a todas as rotas do seu aplicativo - como regras de redefinição de CSS, 
+    estilos de todo o site para elementos HTML, como links, e muito mais.
+
+    Quando você create-next-appinicia um novo projeto, Next.js perguntará se você deseja usar o Tailwind. Se você selecionar yes, 
+    Next.js instalará automaticamente os pacotes necessários e configurará o Tailwind em seu aplicativo.
+
+    - module.css-======================================================================================
+
+    Os módulos CSS permitem que você defina o escopo do CSS para um componente criando automaticamente nomes de classe exclusivos, 
+    para que você também não precise se preocupar com colisões de estilo.
+
+    Dentro /app/ui, crie um novo arquivo chamado home.module.csse adicione as seguintes regras CSS:
+
+.shape {
+  height: 0;
+  width: 0;
+  border-bottom: 30px solid black;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+}
+
+        Em seguida, dentro do seu /app/page.tsxarquivo, importe os estilos e substitua os nomes das classes do tailwind que <div>você adicionou por styles.shape:
+
+import styles from '@/app/ui/home.module.css';
+ 
+//...
+<div className="flex flex-col justify-center gap-6 rounded-lg bg-gray-50 px-6 py-10 md:w-2/5 md:px-20">
+    <div className={styles.shape}></div>;
+// ...
+
+    - clsx biblioteca para alternar nomes de classes ===============================
+
+      clsx é uma biblioteca que permite alternar facilmente os nomes das classes. Recomendamos dar uma olhada na documentação para mais detalhes, mas aqui está o uso básico:
+
+        - clsx - https://www.npmjs.com/package/clsx
+        - documentação  - https://github.com/lukeed/clsx
+
+
+      =---------= capitolo 3 =========================================================================================================
+      - otimizando fontes e imagens =====================================================================
+
+        Mudança cumulativa de layouté uma métrica usada pelo Google para avaliar o desempenho e a experiência do usuário de um site. 
+        Com as fontes, a mudança de layout ocorre quando o navegador inicialmente renderiza o texto em uma fonte substituta ou de sistema e, 
+        em seguida, o troca por uma fonte personalizada depois de carregada. 
+        Essa troca pode fazer com que o tamanho, o espaçamento ou o layout do texto sejam alterados, 
+        deslocando os elementos ao seu redor.
+
+      - Mudança acumulativa de layout - https://web.dev/cls/
+
+        Next.js otimiza automaticamente as fontes no aplicativo quando você usa o next/font módulo. 
+        Ele baixa arquivos de fontes no momento da construção e os hospeda com seus outros ativos estáticos. 
+        Isso significa que quando um usuário visita seu aplicativo, 
+        não há solicitações adicionais de rede para fontes que possam afetar o desempenho.
+
+      - adicionando uma fonte primaria ============================================================================
+
+        Na sua /app/uipasta, crie um novo arquivo chamado fonts.ts . 
+        Você usará esse arquivo para manter as fontes que serão usadas em todo o seu aplicativo.
+
+        Importe a Interfonte do next/font/googlemódulo - esta será sua fonte principal. 
+        Em seguida, especifique qual subconjunto você gostaria de carregar. 
+        Nesse caso, 'latin':
+
+        - subconjunto - https://fonts.google.com/knowledge/glossary/subsetting
+
+import { Inter } from 'next/font/google';
+ 
+export const inter = Inter({ subsets: ['latin'] });
+
+        Por fim, adicione a fonte ao <body>elemento em /app/layout.tsx:
+
+import '@/app/ui/global.css';
+import { inter } from '@/app/ui/fonts';
+ 
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className={`${inter.className} antialiased`}>{children}</body>
+    </html>
+  );
+}
+
+
+        Ao adicionar Interao <body>elemento, a fonte será aplicada em todo o seu aplicativo. 
+        Aqui, você também está adicionando o Tailwindantialiasedclasse que suaviza a fonte. 
+        Não é necessário usar esta classe, mas ela adiciona um toque legal.
+
+      - Por que otimizar imagens? ===================================================================
+
+        Next.js pode servir ativos estáticos , como imagens, na /publicpasta de nível superior. 
+        Os arquivos internos /public podem ser referenciados em seu aplicativo.
+
+        - /public - https://nextjs.org/docs/app/building-your-application/optimizing/static-assets
+
+        Otimização de imagens é um tópico amplo em desenvolvimento web que pode ser considerado uma especialização por si só. 
+        Em vez de implementar manualmente essas otimizações, 
+        você pode usar o next/imagecomponente para otimizar automaticamente suas imagens.
+
+      - O <Image>componente - https://nextjs.org/learn/dashboard-app/optimizing-fonts-images#the-image-component =========================
+
+           O <Image>Componente é uma extensão da <img>tag HTML e vem com otimização automática de imagem, como:
+
+        Impedindo a mudança de layout automaticamente quando as imagens estão sendo carregadas.
+
+        Redimensionar imagens para evitar o envio de imagens grandes para dispositivos com uma janela de visualização menor.
+       
+        Imagens de carregamento lento por padrão (as imagens são carregadas quando entram na janela de visualização).
+       
+        Servindo imagens em formatos modernos, como WebPe AVIF, quando o navegador oferece suporte.
+
+        - AVIF - https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types#avif_image
+        - WebPe - https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types#webp
+
+
+
+      - Adicionando a imagem principal da área de trabalho - https://nextjs.org/learn/dashboard-app/optimizing-fonts-images#adding-the-desktop-hero-image ===============================
+
+        Vamos usar o <Image>componente. Se você olhar dentro da /publicpasta, 
+        verá que há duas imagens: hero-desktop.pnge hero-mobile.png . 
+        Essas duas imagens são completamente diferentes e serão mostradas dependendo se o dispositivo do usuário for desktop ou mobile.
+
+        No seu /app/page.tsxarquivo, importe o componente denext/image. 
+        Em seguida, adicione a imagem abaixo do comentário:
+
+
+import Image from 'next/image';
+ 
+export default function Page() {
+  return (
+    // ...
+    <div className="flex items-center justify-center p-6 md:w-3/5 md:px-28 md:py-12">
+      {/* Add Hero Images Here */}
+      <Image
+        src="/hero-desktop.png"
+        width={1000}
+        height={760}
+        className="hidden md:block"
+        alt="Screenshots of the dashboard project showing desktop version"
+      />
+    </div>
+    //...
+  );
+}
+
+          Aqui, você está configurando widthpara 1000e heightpara 760pixels. 
+          É uma boa prática definir o widthe heightde suas imagens para evitar mudanças de layout; 
+          elas devem ter uma proporção idêntica à da imagem de origem.
+
+          Você também notará a classe hiddenpara remover a imagem do DOM em telas de dispositivos 
+          móveis e md:blockpara mostrar a imagem em telas de desktop.
+
+          mais...
+        https://nextjs.org/docs/app/building-your-application/optimizing/images
+        https://nextjs.org/docs/app/building-your-application/optimizing/fonts
+        https://developer.mozilla.org/en-US/docs/Learn/Performance/Multimedia
+        https://developer.mozilla.org/en-US/docs/Learn/CSS/Styling_text/Web_fonts
+
+
+
+        =------= capitolo 4 ===============================================
+        - Criação de layouts e páginas ==============================================================
+
+          criando rotas ...
+
+        - roteamento aninhado
+
+          Next.js usa roteamento do sistema de arquivos onde as pastas são usadas para criar rotas aninhadas. 
+          Cada pasta representa um segmento de rota que é mapeado para um segmento de URL .
+
+          Você pode criar UIs separadas para cada rota usando arquivos layout.tsxe page.tsx.
+
+          page.tsxé um arquivo Next.js especial que exporta um componente React e é necessário para que a rota seja acessível. 
+          Na sua aplicação, você já possui um arquivo de paginação: /app/page.tsx- esta é a página inicial associada à rota /.
+
+          Para criar uma rota aninhada, 
+          você pode aninhar pastas umas dentro das outras e adicionar page.tsx arquivos dentro delas. Por exemplo:
+
+          É assim que você pode criar páginas diferentes em Next.js: 
+          crie um novo segmento de rota usando uma pasta e adicione um pagearquivo dentro dele.
+
+          Por ter um nome especial para pagearquivos, Next.js permite colocar componentes de UI, 
+          arquivos de teste e outros códigos relacionados com suas rotas. Somente o conteúdo dentro do pagearquivo estará acessível publicamente. 
+          Por exemplo, as pastas /uie /libestão localizadas dentro da /apppasta junto com suas rotas.
+
+        - criando layout do painel
+
+          Os painéis têm algum tipo de navegação compartilhada em várias páginas. 
+          Em Next.js, você pode usar um arquivo especial layout.tsxpara criar uma UI que é compartilhada entre várias páginas. 
+          Vamos criar um layout para as páginas do painel!
+
+          Dentro da /dashboardpasta, adicione um novo arquivo chamado layout.tsxe cole o seguinte código:
+
+          import SideNav from '@/app/ui/dashboard/sidenav';
+ 
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
+      <div className="w-full flex-none md:w-64">
+        <SideNav />
+      </div>
+      <div className="flex-grow p-6 md:overflow-y-auto md:p-12">{children}</div>
+    </div>
+  );
+}
+
+          Um benefício de usar layouts em Next.js é que na navegação, 
+          apenas os componentes da página são atualizados, enquanto o layout não é renderizado novamente. 
+          Isso é chamado de renderização parcial :
+
+          - renderização parcial - https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#3-partial-rendering
+
+        - layout raiz
+
+          No Capítulo 3, 
+          você importou a Interfonte para outro layout: /app/layout.tsx
+
+          Isso é chamado de layout raiz e é obrigatório. 
+          Qualquer UI que você adicionar ao layout raiz será compartilhada em todas as páginas do seu aplicativo. 
+          Você pode usar o layout raiz para modificar suas tags <html>e <body>e adicionar metadados 
+          (você aprenderá mais sobre metadados em um capítulo posterior ).
+
+            - layout raz - https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required
+
+
+        =-----------= capitolo 5 ===========================================================
+        - navegando entre paginas 
+
+          No capítulo anterior, você criou o layout e as páginas do painel. 
+          Agora, vamos adicionar alguns links para permitir que os usuários naveguem entre as rotas do painel.
+
+        - Por que otimizar a navegação?
+
+          Para vincular páginas, você tradicionalmente usaria o <a>elemento HTML. 
+          No momento, os links da barra lateral usam <a>elementos, 
+          mas observe o que acontece quando você navega entre as páginas inicial, 
+          de faturas e de clientes em seu navegador.
+
+        - O <Link> componente
+
+          No Next.js, você pode usar o <Link />componente para vincular as páginas do seu aplicativo. 
+          <Link>permite que você faça navegação no lado do cliente com JavaScript.
+
+           - navegação no lado do cliente - https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#how-routing-and-navigation-works
+          
+          Para usar o <Link />componente, abra /app/ui/dashboard/nav-links.tsxe importe o Linkcomponente de next/link 
+          . Em seguida, substitua a <a>tag por <Link>:
+
+import {
+  UserGroupIcon,
+  HomeIcon,
+  DocumentDuplicateIcon,
+} from '@heroicons/react/24/outline';
+import Link from 'next/link';
+ 
+// ...
+ 
+export default function NavLinks() {
+  return (
+    <>
+      {links.map((link) => {
+        const LinkIcon = link.icon;
+        return (
+          <Link
+            key={link.name}
+            href={link.href}
+            className="flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3"
+          >
+            <LinkIcon className="w-6" />
+            <p className="hidden md:block">{link.name}</p>
+          </Link>
+        );
+      })}
+    </>
+  );
+}
+
+        - Divisão automática de código e pré-busca
+
+          Para melhorar a experiência de navegação, o código Next.js divide automaticamente seu aplicativo por segmentos de rota. 
+          Isso é diferente de um React SPA tradicional, 
+          onde o navegador carrega todo o código do seu aplicativo no carregamento inicial.
+
+          Dividir o código por rotas significa que as páginas ficam isoladas. 
+          Se uma determinada página gerar um erro, 
+          o restante do aplicativo ainda funcionará.
+
+          Além disso, na produção, sempre que <Link>componentes aparecem na janela de visualização do navegador, 
+          o Next.js pré-busca automaticamente o código da rota vinculada em segundo plano. 
+          No momento em que o usuário clicar no link, o código da página de destino já estará carregado em segundo plano, 
+          e é isso que torna a transição da página quase instantânea!
+
+          mais ...
+            - https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#how-routing-and-navigation-works
+
+
+        - padrão : mostrando links ativos
+
+          Um padrão de UI comum é mostrar um link ativo para indicar ao usuário em qual página ele está atualmente. 
+          Para fazer isso, você precisa obter o caminho atual do usuário na URL. 
+          Next.js fornece um gancho chamado usePathname()que você pode usar para verificar o caminho e implementar esse padrão.
+
+            - usePathname() - https://nextjs.org/docs/app/api-reference/functions/use-pathname
+
+          DesdeusePathname()é um gancho, você precisará transformá-lo nav-links.tsx em um componente cliente. 
+          Adicione a diretiva do React "use client"ao topo do arquivo e importe usePathname()de next/navigation:
+
+'use client';
+
+import {
+  UserGroupIcon,
+  HomeIcon,
+  InboxIcon,
+} from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+ 
+// ...
+          
+          A seguir, atribua o caminho a uma variável chamada pathnamedentro do seu <NavLinks />componente:
+
+export default function NavLinks() {
+  const pathname = usePathname();
+  // ...
+}
